@@ -6,6 +6,9 @@
     "homepage": "https://github.com/drhino/unpack",
     "license": "MIT",
     "autoload": {
-        "psr-0": { "Unpack": "" }
+        "psr-4": {
+            "drhino\\": "src/",
+            "drhino\\Unpack\\Exception\\": "src/Exception/"
+        }
     }
 }
