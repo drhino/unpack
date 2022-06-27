@@ -1,0 +1,11 @@
+{
+    "name": "drhino/unpack",
+    "type": "library",
+    "description": "Unpacks a .zip or .gz archive with PHP.",
+    "keywords": ["unpack", "decompress", "gzip", "zip", "zipfile", "ziparchive", "archive"],
+    "homepage": "https://github.com/drhino/unpack",
+    "license": "MIT",
+    "autoload": {
+        "psr-0": { "Unpack": "" }
+    }
+}
