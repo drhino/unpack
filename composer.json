@@ -7,8 +7,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "drhino\\": "src/",
-            "drhino\\Unpack\\Exception\\": "src/Exception/"
+            "drhino\\Unpack\\": "src/"
         }
     },
     "suggests": {
