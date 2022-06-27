@@ -2,7 +2,7 @@
     "name": "drhino/unpack",
     "type": "library",
     "description": "Unpacks a .zip or .gz archive with PHP.",
-    "keywords": ["unpack", "decompress", "gzip", "zip", "zipfile", "ziparchive", "archive"],
+    "keywords": ["unpack", "decompress", "gzip", "deflate", "unzip", "zipfile", "ziparchive", "zip", "file", "archive"],
     "homepage": "https://github.com/drhino/unpack",
     "license": "MIT",
     "autoload": {
@@ -10,5 +10,8 @@
             "drhino\\": "src/",
             "drhino\\Unpack\\Exception\\": "src/Exception/"
         }
+    },
+    "suggests": {
+        "ext-zip": "Required for unzip() in class Unpack."
     }
 }
