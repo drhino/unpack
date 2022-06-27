@@ -1,10 +1,8 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.236.0/containers/ubuntu/.devcontainer/base.Dockerfile
+# See here for image contents:
+# https://github.com/microsoft/vscode-dev-containers/tree/v0.236.0/containers/ubuntu/.devcontainer/base.Dockerfile
 
-# [Choice] Ubuntu version (use ubuntu-22.04 or ubuntu-18.04 on local arm64/Apple Silicon): ubuntu-22.04, ubuntu-20.04, ubuntu-18.04
-# Release: 20.04
-# Codename: focal
-# Description: Ubuntu 20.04.4 LTS
-ARG VARIANT="jammy"
+# Choose the VARIANT in: devcontainer.json ; Note that the ARGument MUST be defined.
+ARG VARIANT
 FROM mcr.microsoft.com/vscode/devcontainers/base:0-${VARIANT}
 
 #
