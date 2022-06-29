@@ -2,10 +2,12 @@
 
 namespace drhino\Unpack\Exception;
 
-use drhino\Unpack\Exception\UnpackStdException;
+use drhino\Unpack\Enum\UnpackDestinationExistsError;
 
 class UnpackDestinationExistsException extends UnpackStdException
 {
-    const FILE_EXISTS      = 10100001; // file_exists()
-    const DIRECTORY_EXISTS = 10100002; // is_dir()
+    public function __construct(UnpackDestinationExistsError $enum, \Throwable $previous = null)
+    {
+        parent::__construct($enum, $previous);
+    }
 }

@@ -3,12 +3,15 @@
 namespace drhino\Unpack;
 
 use Throwable;
-use RuntimeException;
 use ZipArchive;
 
 use drhino\Unpack\Exception\UnpackDestinationExistsException;
 use drhino\Unpack\Exception\UnpackReadException;
 use drhino\Unpack\Exception\UnpackWriteException;
+
+use drhino\Unpack\Enum\UnpackWriteError;
+use drhino\Unpack\Enum\UnpackReadError;
+use drhino\Unpack\Enum\UnpackDestinationExistsError;
 
 use function gzopen;
 use function gzread;
@@ -20,6 +23,7 @@ use function fclose;
 use function is_resource;
 use function file_exists;
 use function is_dir;
+use function function_exists;
 use function class_exists;
 use function phpversion;
 
@@ -44,19 +48,22 @@ class Unpack
             // The source and destination path within the exception are set in catch().
             self::exists($destination);
 
-            if ( ($gzopen = @gzopen($source, 'rb')) === false ) {
+            if (!file_exists($source))
+                throw new UnpackReadException(UnpackReadError::GZIP_NOENT);
 
-                if (@file_exists($source) === false)
-                    throw new UnpackReadException(UnpackReadException::GZIP_NOENT);
+            if (!function_exists('gzopen'))
+                throw new UnpackReadException(UnpackReadError::GZIP_UNAVAIL);
+
+            if ( ($gzopen = gzopen($source, 'rb')) === false ) {
 
                 #if (@is_readable($source) === false)
 
-                throw new UnpackReadException(UnpackReadException::GZIP_OPEN);
+                throw new UnpackReadException(UnpackReadError::GZIP_OPEN);
             }
 
             while (!@gzeof($gzopen)) {
                 if ( ($buffer = @gzread($gzopen, 4096)) === false )
-                    throw new UnpackReadException(UnpackReadException::GZIP_READ);
+                    throw new UnpackReadException(UnpackReadError::GZIP_READ);
 
                 // When gzread() fails and throws an Exception; We do not want any leftover files.
                 // Therefor, we only create the $destination file when the first 4KB was successfully read. 
@@ -64,10 +71,10 @@ class Unpack
                     // Opens the $destination in binary append mode.
                     // Assigning the file pointer creates the $destination.
                     if ( ($fopen = fopen($destination, 'ab')) === false )
-                        throw new UnpackWriteException(UnpackWriteException::GZIP_CREATE);
+                        throw new UnpackWriteException(UnpackWriteError::GZIP_CREATE);
 
                 if (fwrite($fopen, $buffer) === false)
-                    throw new UnpackWriteException(UnpackWriteException::GZIP_WRITE);
+                    throw new UnpackWriteException(UnpackWriteError::GZIP_WRITE);
             }
         } catch (Throwable $e) {
             $e->setSource($source);
@@ -122,10 +129,12 @@ class Unpack
             // When $status is not TRUE, one of the error code constants is used:
             // https://www.php.net/manual/en/ziparchive.open.php
             if ($status !== true)
-                throw new UnpackReadException($status);
+                throw new UnpackReadException(
+                    UnpackReadException::zipUnpackReadError($status)
+                );
 
             if (!$zip->extractTo($destination))
-                throw new UnpackWriteException(UnpackWriteException::ZIP_EXTRACT);
+                throw new UnpackWriteException(UnpackWriteError::ZIP_EXTRACT);
         }
         catch (Throwable $e) {
             $e->setSource($source);
@@ -133,8 +142,6 @@ class Unpack
         }
 
         // Closes the zip-file when it was successfully opened.
-        #if ($status === true && !$zip->close())
-        #    $e = new UnpackReadException(UnpackReadException::ZIP_CLOSE, $e);
         if ($status === true) $zip->close();
         $zip = null;
 
@@ -156,12 +163,12 @@ class Unpack
 
         if (@is_dir($path) === true)
             throw new UnpackDestinationExistsException(
-                UnpackDestinationExistsException::DIRECTORY_EXISTS
+                UnpackDestinationExistsError::DIRECTORY_EXISTS
             );
 
         if (@file_exists($path) === true)
             throw new UnpackDestinationExistsException(
-                UnpackDestinationExistsException::FILE_EXISTS
+                UnpackDestinationExistsError::FILE_EXISTS
             );
     }
 }

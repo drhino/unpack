@@ -2,9 +2,11 @@
 
 namespace drhino\Unpack\Exception;
 
-use drhino\Unpack\Exception\UnpackExceptionMessages;
+use drhino\Unpack\Enum\UnpackWriteError;
+use drhino\Unpack\Enum\UnpackReadError;
+use drhino\Unpack\Enum\UnpackDestinationExistsError;
+
 use Exception;
-use Throwable;
 
 /**
  * Extends the default exception and adds some logic.
@@ -17,29 +19,26 @@ class UnpackStdException extends Exception
     # Holds the path to the output file or directory.
     private $destination;
 
+    private $enum;
+
     /**
      * Inherits the default exception.
      *
-     * @param Integer   $code     Child class exception code.
+     * @param Enum      $enum     Error message.
      * @param Throwable $previous If nested exception.
      */
-    public function __construct(Int $code, Throwable $previous = null)
-    {
-        // Full list of error codes:
-        //   drhino\Unpack\Exception\UnpackExceptionMessages
-        $message = UnpackExceptionMessages::getMessage($code);
-
-        // Inherits the source and destination path by default.
-        if (isset($previous)) {
-            if (method_exists($previous, 'getSource'))
-                $this->setSource($previous->getSource());
-
-            if (method_exists($previous, 'getDestination'))
-                $this->setSource($previous->getDestination());
-        }
+    public function __construct(
+        UnpackWriteError|UnpackReadError|UnpackDestinationExistsError $enum,
+        \Throwable $previous = null
+    ) {
+        $this->enum = $enum;
 
         // Constructs the default Exception.
-        parent::__construct($message, $code, $previous);
+        parent::__construct($enum->label(), 0, $previous);
+    }
+
+    public function getEnum(): Enum {
+        return $this->enum;
     }
 
     /**
